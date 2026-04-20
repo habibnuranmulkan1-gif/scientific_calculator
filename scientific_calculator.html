@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scientific Calculator - Glassmorphism</title>
+<style>
+  /* Import Font Modern */
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  /* Background Animasi */
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(45deg, #1a1a2e, #16213e, #0f3460, #e94560);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  @keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .calc-wrap { display: flex; justify-content: center; padding: 2rem; }
+
+  /* Efek Glassmorphism pada Kalkulator */
+  .calc {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 1.5rem;
+    width: 360px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  }
+
+  /* Layar Kalkulator */
+  .display {
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    min-height: 80px;
+    text-align: right;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+  }
+
+  .expr {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
+    min-height: 18px;
+    word-break: break-all;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.5px;
+  }
+
+  .main-val {
+    font-size: 36px;
+    font-weight: 500;
+    color: #ffffff;
+    font-family: 'JetBrains Mono', monospace;
+    word-break: break-all;
+    text-shadow: 0 0 10px rgba(255,255,255,0.3);
+  }
+
+  /* Baris Mode (DEG/RAD/GRAD) */
+  .mode-row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .mode-btn {
+    flex: 1;
+    padding: 8px 0;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .mode-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+  .mode-btn.active {
+    background: rgba(233, 69, 96, 0.8);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 0 15px rgba(233, 69, 96, 0.4);
+  }
+
+  /* Grid Tombol */
+  .btns { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  
+  .btn {
+    padding: 12px 4px;
+    font-size: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    color: #e0e0e0;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    color: #fff;
+  }
+  .btn:active { transform: translateY(0) scale(0.95); }
+
+  /* Kustomisasi Tipe Tombol */
+  .btn.op { color: #4facfe; font-weight: 500; background: rgba(79, 172, 254, 0.08); }
+  .btn.op:hover { background: rgba(79, 172, 254, 0.2); }
+
+  .btn.eq {
+    background: linear-gradient(135deg, #e94560, #ff6b6b);
+    color: #fff;
+    font-weight: 500;
+    border: none;
+    box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+  }
+  .btn.eq:hover { 
+    box-shadow: 0 6px 20px rgba(233, 69, 96, 0.6); 
+    transform: translateY(-2px) scale(1.02); 
+  }
+
+  .btn.fn { font-size: 12px; color: rgba(255, 255, 255, 0.5); }
+  
+  .btn.clear { color: #ff4757; background: rgba(255, 71, 87, 0.05); }
+  .btn.clear:hover { background: rgba(255, 71, 87, 0.15); color: #ff6b81; }
+
+</style>
+</head>
+<body>
+
+<div class="calc-wrap">
+  <div class="calc">
+    <div class="display">
+      <div class="expr" id="expr"></div>
+      <div class="main-val" id="mainval">0</div>
+    </div>
+    <div class="mode-row">
+      <button class="mode-btn active" id="modeDeg" onclick="setMode('deg')">DEG</button>
+      <button class="mode-btn" id="modeRad" onclick="setMode('rad')">RAD</button>
+      <button class="mode-btn" id="modeGrad" onclick="setMode('grad')">GRAD</button>
+    </div>
+    <div class="btns" id="btnGrid"></div>
+  </div>
+</div>
+
+<script>
+let expr = '', mainVal = '0', mode = 'deg', justEvaled = false, memVal = 0;
+
+function toRad(x) {
+  if (mode === 'deg') return x * Math.PI / 180;
+  if (mode === 'grad') return x * Math.PI / 200;
+  return x;
+}
+
+function fromRad(x) {
+  if (mode === 'deg') return x * 180 / Math.PI;
+  if (mode === 'grad') return x * 200 / Math.PI;
+  return x;
+}
+
+function setMode(m) {
+  mode = m;
+  ['Deg','Rad','Grad'].forEach(mm => {
+    document.getElementById('mode'+mm).classList.toggle('active', mode === mm.toLowerCase());
+  });
+}
+
+function fmt(n) {
+  if (!isFinite(n)) return n.toString();
+  if (Math.abs(n) >= 1e10 || (Math.abs(n) < 1e-7 && n !== 0)) return n.toExponential(6);
+  let s = parseFloat(n.toPrecision(12)).toString();
+  return s;
+}
+
+function updateDisplay() {
+  document.getElementById('expr').textContent = expr;
+  document.getElementById('mainval').textContent = mainVal;
+}
+
+function input(val) {
+  if (justEvaled && /[\d.]/.test(val)) { expr = ''; mainVal = '0'; }
+  if (justEvaled && /[+\-×÷^]/.test(val)) { expr = mainVal; }
+  justEvaled = false;
+  if (mainVal === '0' && /\d/.test(val)) mainVal = val;
+  else if (val === '.' && mainVal.includes('.')) {}
+  else mainVal += val;
+  updateDisplay();
+}
+
+function op(sym) {
+  justEvaled = false;
+  expr = (expr || mainVal) + ' ' + sym + ' ';
+  mainVal = '0';
+  updateDisplay();
+}
+
+function unary(fn) {
+  try {
+    let v = parseFloat(mainVal);
+    let r;
+    if (fn === 'sin') r = Math.sin(toRad(v));
+    else if (fn === 'cos') r = Math.cos(toRad(v));
+    else if (fn === 'tan') r = Math.tan(toRad(v));
+    else if (fn === 'asin') r = fromRad(Math.asin(v));
+    else if (fn === 'acos') r = fromRad(Math.acos(v));
+    else if (fn === 'atan') r = fromRad(Math.atan(v));
+    else if (fn === 'log') r = Math.log10(v);
+    else if (fn === 'ln') r = Math.log(v);
+    else if (fn === 'sqrt') r = Math.sqrt(v);
+    else if (fn === 'cbrt') r = Math.cbrt(v);
+    else if (fn === 'x2') r = v * v;
+    else if (fn === 'x3') r = v * v * v;
+    else if (fn === 'inv') r = 1 / v;
+    else if (fn === 'fact') { r = 1; for(let i=2;i<=Math.round(v);i++) r*=i; }
+    else if (fn === 'abs') r = Math.abs(v);
+    else if (fn === 'neg') r = -v;
+    else if (fn === '10x') r = Math.pow(10, v);
+    else if (fn === 'ex') r = Math.exp(v);
+    expr = fn + '(' + mainVal + ')';
+    mainVal = fmt(r);
+    justEvaled = true;
+    updateDisplay();
+  } catch(e) { mainVal = 'Error'; updateDisplay(); }
+}
+
+function evalExpr() {
+  try {
+    let full = (expr || '') + mainVal;
+    let parts = full.trim().split(/\s+/);
+    let result;
+    if (parts.length >= 3) {
+      let a = parseFloat(parts[0]), sym = parts[1], b = parseFloat(parts[2]);
+      if (sym === '+') result = a + b;
+      else if (sym === '−' || sym === '-') result = a - b;
+      else if (sym === '×') result = a * b;
+      else if (sym === '÷') result = b === 0 ? Infinity : a / b;
+      else if (sym === '^') result = Math.pow(a, b);
+      else if (sym === 'mod') result = a % b;
+      else if (sym === 'EE') result = a * Math.pow(10, b);
+      else result = parseFloat(mainVal);
+    } else result = parseFloat(mainVal);
+    expr = full + ' =';
+    mainVal = fmt(result);
+    justEvaled = true;
+    updateDisplay();
+  } catch(e) { mainVal = 'Error'; updateDisplay(); }
+}
+
+function clearAll() { expr = ''; mainVal = '0'; justEvaled = false; updateDisplay(); }
+function clearEntry() { mainVal = '0'; updateDisplay(); }
+function backspace() { if(mainVal.length > 1) mainVal = mainVal.slice(0,-1); else mainVal = '0'; updateDisplay(); }
+function memOp(t) {
+  if(t==='MC') memVal=0;
+  else if(t==='MR') { mainVal=fmt(memVal); justEvaled=true; updateDisplay(); }
+  else if(t==='M+') memVal+=parseFloat(mainVal);
+  else if(t==='M−') memVal-=parseFloat(mainVal);
+  else if(t==='MS') memVal=parseFloat(mainVal);
+}
+function constVal(c) {
+  if(c==='π') mainVal=fmt(Math.PI);
+  else if(c==='e') mainVal=fmt(Math.E);
+  justEvaled=true; updateDisplay();
+}
+
+function buildBtns() {
+  const grid = document.getElementById('btnGrid');
+  const buttons = [
+    {l:'MC',cls:'fn'},{l:'MR',cls:'fn'},{l:'M+',cls:'fn'},{l:'M−',cls:'fn'},{l:'MS',cls:'fn'},
+    {l:'2ⁿᵈ',cls:'fn'},{l:'xʸ',cls:'fn op'},{l:'x²',cls:'fn'},{l:'x³',cls:'fn'},{l:'eˣ',cls:'fn'},
+    {l:'sin',cls:'fn'},{l:'cos',cls:'fn'},{l:'tan',cls:'fn'},{l:'log',cls:'fn'},{l:'ln',cls:'fn'},
+    {l:'sin⁻¹',cls:'fn'},{l:'cos⁻¹',cls:'fn'},{l:'tan⁻¹',cls:'fn'},{l:'10ˣ',cls:'fn'},{l:'√',cls:'fn'},
+    {l:'π',cls:'fn'},{l:'e',cls:'fn'},{l:'|x|',cls:'fn'},{l:'∛',cls:'fn'},{l:'1/x',cls:'fn'},
+    {l:'x!',cls:'fn'},{l:'mod',cls:'fn op'},{l:'EE',cls:'fn op'},{l:'+/−',cls:'fn'},{l:'%',cls:'fn'},
+    {l:'C',cls:'clear'},{l:'CE',cls:'fn'},{l:'⌫',cls:'fn'},{l:'(',cls:'fn'},{l:'÷',cls:'op'},
+    {l:'7',cls:''},{l:'8',cls:''},{l:'9',cls:''},{l:'×',cls:'op'},{l:'+',cls:'op'},
+    {l:'4',cls:''},{l:'5',cls:''},{l:'6',cls:''},{l:'−',cls:'op'},{l:'=',cls:'eq',r:2},
+    {l:'1',cls:''},{l:'2',cls:''},{l:'3',cls:''},
+    {l:'0',cls:'',r:2},{l:'.',cls:''},
+  ];
+
+  buttons.forEach(b => {
+    const btn = document.createElement('button');
+    btn.className = 'btn ' + (b.cls||'');
+    btn.textContent = b.l;
+    if (b.r) btn.style.gridColumn = 'span '+b.r;
+    btn.onclick = () => handleBtn(b.l);
+    grid.appendChild(btn);
+  });
+}
+
+function handleBtn(l) {
+  if ('0123456789'.includes(l)) { input(l); return; }
+  if (l === '.') { input('.'); return; }
+  if (l === '+') { op('+'); return; }
+  if (l === '−') { op('−'); return; }
+  if (l === '×') { op('×'); return; }
+  if (l === '÷') { op('÷'); return; }
+  if (l === 'xʸ') { op('^'); return; }
+  if (l === 'mod') { op('mod'); return; }
+  if (l === 'EE') { op('EE'); return; }
+  if (l === '=') { evalExpr(); return; }
+  if (l === 'C') { clearAll(); return; }
+  if (l === 'CE') { clearEntry(); return; }
+  if (l === '⌫') { backspace(); return; }
+  if (l === 'sin') { unary('sin'); return; }
+  if (l === 'cos') { unary('cos'); return; }
+  if (l === 'tan') { unary('tan'); return; }
+  if (l === 'sin⁻¹') { unary('asin'); return; }
+  if (l === 'cos⁻¹') { unary('acos'); return; }
+  if (l === 'tan⁻¹') { unary('atan'); return; }
+  if (l === 'log') { unary('log'); return; }
+  if (l === 'ln') { unary('ln'); return; }
+  if (l === '√') { unary('sqrt'); return; }
+  if (l === '∛') { unary('cbrt'); return; }
+  if (l === 'x²') { unary('x2'); return; }
+  if (l === 'x³') { unary('x3'); return; }
+  if (l === '1/x') { unary('inv'); return; }
+  if (l === 'x!') { unary('fact'); return; }
+  if (l === '|x|') { unary('abs'); return; }
+  if (l === '+/−') { unary('neg'); return; }
+  if (l === '10ˣ') { unary('10x'); return; }
+  if (l === 'eˣ') { unary('ex'); return; }
+  if (l === 'π') { constVal('π'); return; }
+  if (l === 'e') { constVal('e'); return; }
+  if (l === '%') { mainVal = fmt(parseFloat(mainVal)/100); updateDisplay(); return; }
+  if (l === '(') { expr += '('; updateDisplay(); return; }
+  if (['MC','MR','M+','M−','MS'].includes(l)) { memOp(l); return; }
+}
+
+buildBtns();
+updateDisplay();
+</script>
+</body>
+</html>
